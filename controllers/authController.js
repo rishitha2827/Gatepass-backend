@@ -1,6 +1,6 @@
-const supabase = require('../supabaseClient');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const supabase = require('../supabaseClient');
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
