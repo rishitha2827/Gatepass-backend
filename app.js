@@ -7,7 +7,7 @@ const passRoutes = require('./routes/passRoutes');
 
 const app = express();
 
-const allowedOrigins = ['https://gatepass-frontend.vercel.app/'];
+const allowedOrigins = ['https://gatepass-frontend.vercel.app'];
 
 app.use(cors({
   origin: allowedOrigins,
