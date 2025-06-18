@@ -1,26 +1,25 @@
+// server/controllers/authController.js
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const supabase = require('../supabaseClient');
+const User = require('../models/User'); // MongoDB model
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
-  const { data: users, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('username', username)
-    .single();
+  try {
+    // Find user by username and password (plain-text match)
+    const user = await User.findOne({ username, password });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
-  if (error || !users) return res.status(400).json({ error: 'User not found' });
+    // Create JWT token with role info
+    const token = jwt.sign(
+      { id: user._id, role: user.role, name: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-  const validPassword = await bcrypt.compare(password, users.password);
-  if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
-
-  const token = jwt.sign(
-    { id: users.id, role: users.role, name: users.username },
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' }
-  );
-
-  res.json({ token });
+    res.json({ token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Login failed' });
+  }
 };

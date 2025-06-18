@@ -1,9 +1,8 @@
+// server/middlewares/authMiddleware.js
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized: No token provided" });
   }
@@ -12,24 +11,20 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // contains id, name, role
+    req.user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ error: "Unauthorized: Invalid token" });
   }
 };
 
-// Role-based middleware
-const authorizeRoles = (...allowedRoles) => {
+const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
+    if (!req.user || !roles.includes(req.user.role.toLowerCase())) {
       return res.status(403).json({ error: "Forbidden: Access denied" });
     }
     next();
   };
 };
 
-module.exports = {
-  authMiddleware,
-  authorizeRoles,
-};
+module.exports = { authMiddleware, authorizeRoles };

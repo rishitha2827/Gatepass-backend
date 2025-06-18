@@ -15,11 +15,11 @@ router.post(
 router.get(
   '/issued',
   authMiddleware,
-  authorizeRoles('hod'),
+  authorizeRoles('HOD'), // or 'hod', match case with DB
   passController.getHodPasses
 );
 
-// WATCHMAN: View unchecked passes
+// WATCHMAN: View all unchecked passes
 router.get(
   '/unchecked',
   authMiddleware,
