@@ -1,14 +1,21 @@
-// server/controllers/passController.js
 const Pass = require('../models/Pass');
 
 // ✅ HOD: Create a pass
 exports.createPass = async (req, res) => {
   try {
-    const pass = new Pass({
-      ...req.body,
-      issued_by: req.user.name,
-      left: false,
-    });
+    const { rollno, branch, year, date, time, reason } = req.body;
+
+const pass = new Pass({
+  rollno,
+  branch,
+  year,
+  date,
+  time,
+  reason,
+  issued_by: req.user.name,
+  left: false,
+});
+
     const result = await pass.save();
     res.json({ message: 'Pass created successfully', data: result });
   } catch (error) {
@@ -17,21 +24,13 @@ exports.createPass = async (req, res) => {
   }
 };
 
-// ✅ HOD: View all passes issued by them
-exports.getHodPasses = async (req, res) => {
+// ✅ HOD: Get passes they issued and are pending (left === false)
+exports.getHodUncheckedPasses = async (req, res) => {
   try {
-    const data = await Pass.find({ issued_by: req.user.name }); // Only HOD's own passes
-    res.json(data);
-  } catch (error) {
-    console.error('Fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch HOD passes' });
-  }
-};
-
-// ✅ WATCHMAN: View unchecked passes (left === false)
-exports.getUncheckedPasses = async (req, res) => {
-  try {
-    const data = await Pass.find({ left: false }); // No filter on 'issued_by'
+    const data = await Pass.find({
+      issued_by: req.user.name,
+      left: false
+    });
     res.json(data);
   } catch (error) {
     console.error('Fetch error:', error);
@@ -39,6 +38,30 @@ exports.getUncheckedPasses = async (req, res) => {
   }
 };
 
+// ✅ HOD: Get passes they issued and are completed (left === true)
+exports.getHodPastPasses = async (req, res) => {
+  try {
+    const data = await Pass.find({
+      issued_by: req.user.name,
+      left: true
+    });
+    res.json(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch past passes' });
+  }
+};
+
+// ✅ WATCHMAN: See all unchecked passes
+exports.getAllUncheckedPasses = async (req, res) => {
+  try {
+    const data = await Pass.find({ left: false });
+    res.json(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch all unchecked passes' });
+  }
+};
 
 // ✅ WATCHMAN: Mark student as left
 exports.updateLeftStatus = async (req, res) => {

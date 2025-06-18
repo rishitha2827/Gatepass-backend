@@ -11,42 +11,36 @@ router.post(
   passController.createPass
 );
 
-// HOD: View passes they issued
+// HOD: View only passes they issued and status is false (unchecked)
 router.get(
-  '/issued',
+  '/hod/unchecked',
   authMiddleware,
-  authorizeRoles('hod'), // or 'hod', match case with DB
-  passController.getHodPasses
+  authorizeRoles('hod'),
+  passController.getHodUncheckedPasses
 );
 
-// WATCHMAN: View all unchecked passes
+// HOD: View only passes they issued and status is true (past)
 router.get(
-  '/unchecked',
+  '/hod/history',
+  authMiddleware,
+  authorizeRoles('hod'),
+  passController.getHodPastPasses
+);
+
+// WATCHMAN: View all passes where left is false
+router.get(
+  '/watchman/unchecked',
   authMiddleware,
   authorizeRoles('watchman'),
-  passController.getUncheckedPasses
+  passController.getAllUncheckedPasses
 );
 
-// WATCHMAN: Update student left status
+// WATCHMAN: Mark pass as left
 router.patch(
   '/update/:id',
   authMiddleware,
   authorizeRoles('watchman'),
   passController.updateLeftStatus
-);
-
-router.get(
-  '/issued',
-  authMiddleware,
-  authorizeRoles('hod'),
-  passController.getHodPasses
-);
-
-router.get(
-  '/unchecked',
-  authMiddleware,
-  authorizeRoles('hod'),
-  passController.getUncheckedPasses
 );
 
 module.exports = router;
