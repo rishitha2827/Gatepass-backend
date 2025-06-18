@@ -15,7 +15,7 @@ router.post(
 router.get(
   '/issued',
   authMiddleware,
-  authorizeRoles('HOD'), // or 'hod', match case with DB
+  authorizeRoles('hod'), // or 'hod', match case with DB
   passController.getHodPasses
 );
 
